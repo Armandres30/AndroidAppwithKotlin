@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.graphics.pdf.models.ListItem
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 
@@ -16,7 +15,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,13 +49,36 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    MyApplicationTheme {
-        Greeting("Android")
-    }
-}
+fun MainScreen() {
+    //val urls = listOf("https://www.google.com", "httsp://www.duckduckgo.com")
+    // Mutable state list of URLs
+    val urls =
+        remember { mutableStateListOf("https://www.google.com", "https://www.duckduckgo.com") }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Greeting(
+                        name = "User!",
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                    LazyColumn{
+                        item {
+                            Spacer(modifier = Modifier.height(80.dp))
+                        }
+                        item{
+                            InputBox(
+                                onUrlAdded = { newUrl ->
+                                    urls.plus(newUrl) // Add new URL to the list
+                                },
+                                modifier = Modifier.height(80.dp)
+                            )
+                        }
+                        items(urls) {
+                            ListItem(it)
+                        }
+                    }
+                }
+            }
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
@@ -68,27 +89,12 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Preview(showBackground = true)
 @Composable
-fun ListItem(name: String) {
-    Card(
-        modifier = Modifier.fillMaxSize()
-            .padding(12.dp)
-    ) {
-        Row {
-            Image(
-                painter = painterResource(id = R.drawable.baseline_web_24),
-                contentDescription = "Photo of Person",
-                modifier = Modifier.width(100.dp)
-                    .height(100.dp)
-            )
-            Text(
-                text = "URL: " + name,
-                modifier = Modifier.padding(24.dp)
-            )
-        }
-
+fun GreetingPreview() {
+    MyApplicationTheme {
+        Greeting("Android")
     }
-
 }
 
 @Composable
@@ -119,32 +125,25 @@ fun InputBox(onUrlAdded: (String) -> Unit,modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MainScreen() {
-    //val urls = listOf("https://www.google.com", "httsp://www.duckduckgo.com")
-    // Mutable state list of URLs
-    val urls =
-        remember { mutableStateListOf("https://www.google.com", "https://www.duckduckgo.com") }
-
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-        Column(modifier = Modifier.padding(innerPadding)) {
-            Greeting(
-                name = "User!",
-                modifier = Modifier.padding(innerPadding)
+fun ListItem(name: String) {
+    Card(
+        modifier = Modifier.fillMaxSize()
+            .padding(12.dp)
+    ) {
+        Row {
+            Image(
+                painter = painterResource(id = R.drawable.baseline_web_24),
+                        contentDescription = "Photo of Person",
+                        modifier = Modifier.width(100.dp)
+                    .height(100.dp)
             )
-            InputBox(
-                onUrlAdded = { newUrl ->
-                    urls.plus(newUrl) // Add new URL to the list
-                },
-                modifier = Modifier.height(80.dp)
+            Text(
+                text = "URL: " + name,
+                modifier = Modifier.padding(24.dp)
             )
-            LazyColumn {
-                items(urls) { url ->
-                    ListItem(url)
-                }
-            }
         }
+
     }
+
 }
-
-
 
