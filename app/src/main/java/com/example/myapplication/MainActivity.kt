@@ -68,7 +68,7 @@ fun MainScreen() {
                         item{
                             InputBox(
                                 onUrlAdded = { newUrl ->
-                                    urls.plus(newUrl) // Add new URL to the list
+                                    urls.add(newUrl) // Add new URL to the list
                                 },
                                 modifier = Modifier.height(80.dp)
                             )
