@@ -22,11 +22,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.Cyan
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +75,7 @@ fun MainScreen() {
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
-        text = "Hello $name!\n Input your URLs to be blocked below.", //fontSize = 30.dp, color = Color.Red, fontStyle = FontStyle.Italic, fontWeight = FontWeight.Bold,
+        text = "Hello $name!\n Input your URLs to be blocked below.", color = Color.Red, //fontSize = 30.dp, fontStyle = FontStyle.Italic, fontWeight = FontWeight.Bold,
         modifier = modifier
             .fillMaxWidth()
             .padding(50.dp)
@@ -117,6 +123,9 @@ fun InputBox(
 
 @Composable
 fun ListItem(url: String) {
+    val LightBlue = Color(0xFFADD8E6) // Light Blue color
+    val Purple = Color(0xFF800080) // Purple color
+    val gradientColors = listOf(Cyan, LightBlue, Purple /*...*/)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -132,7 +141,12 @@ fun ListItem(url: String) {
             )
             Text(
                 text = "URL: $url",
-                modifier = Modifier.padding(24.dp)
+                modifier = Modifier.padding(24.dp),
+                style = TextStyle(
+                    brush = Brush.linearGradient(
+                        colors = gradientColors
+                    )
+                )
             )
         }
     }
