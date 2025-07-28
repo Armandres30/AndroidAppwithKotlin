@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.SharedPreferences
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.key.Key
@@ -33,6 +34,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import android.content.Context
+import androidx.compose.runtime.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
+// Define a key for SharedPreferences
+private const val PREFS_NAME = "my_prefs"
+private const val URLS_KEY = "urls"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,16 +50,39 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyApplicationTheme {
-                MainScreen() // Call the new composable function
+                MainScreen(context = this) // Call the new composable function
             }
         }
     }
 }
 
+// Function to save the list to SharedPreferences
+fun saveUrls(context: Context, urls: SnapshotStateList<String>) {
+    val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    val editor = prefs.edit()
+    val gson = Gson()
+    val json = gson.toJson(urls)
+    editor.putString(URLS_KEY, json)
+    editor.apply()
+}
+
 @Composable
-fun MainScreen() {
+// Function to load the list from SharedPreferences
+fun loadUrls(context: Context): SnapshotStateList<String> {
+    val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    val gson = Gson()
+    val json = prefs.getString(URLS_KEY, null)
+    val type = object : TypeToken<MutableList<String>>() {}.type
+    return remember { mutableStateListOf(*gson.fromJson(json, type) ?: emptyArray()) }
+}
+
+@Composable
+fun MainScreen(context: Context) {
+    lateinit var sharedPreferences: SharedPreferences
     // Mutable state list of URLs
-    val urls = remember { mutableStateListOf("https://www.google.com", "https://www.duckduckgo.com") }
+    val urls = loadUrls(context).ifEmpty {
+        remember { mutableStateListOf("https://www.google.com", "https://www.duckduckgo.com") }
+    }
 
     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
@@ -60,7 +92,8 @@ fun MainScreen() {
                     urls.add(newUrl) // Add new URL to the list
                 },
                 modifier = Modifier.height(80.dp),
-                urls
+                urls,
+                context
             )
             // Make the LazyColumn scrollable
             LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -95,7 +128,8 @@ fun GreetingPreview() {
 fun InputBox(
     onUrlAdded: (String) -> Unit,
     modifier: Modifier = Modifier,
-    urls: SnapshotStateList<String>
+    urls: SnapshotStateList<String>,
+    context: Context
 ) {
     var inputQuery by remember { mutableStateOf("") }
     TextField(
@@ -111,6 +145,7 @@ fun InputBox(
                 if (keyEvent.key == Key.Enter) {
                     if (inputQuery.isNotBlank() && inputQuery !in urls) {
                         onUrlAdded(inputQuery) // Call the function to add URL
+                        saveUrls(context, urls) // Save the updated list
                         inputQuery = "" // Clear the input field
                     }
                     true
@@ -123,9 +158,9 @@ fun InputBox(
 
 @Composable
 fun ListItem(url: String) {
-    val LightBlue = Color(0xFFADD8E6) // Light Blue color
-    val Purple = Color(0xFF800080) // Purple color
-    val gradientColors = listOf(Cyan, LightBlue, Purple /*...*/)
+    //val LightBlue = Color(0xFFADD8E6) // Light Blue color
+    //val Purple = Color(0xFF800080) // Purple color
+    //val gradientColors = listOf(Cyan, LightBlue, Purple /*...*/)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -142,11 +177,11 @@ fun ListItem(url: String) {
             Text(
                 text = "URL: $url",
                 modifier = Modifier.padding(24.dp),
-                style = TextStyle(
+                /*style = TextStyle(
                     brush = Brush.linearGradient(
                         colors = gradientColors
                     )
-                )
+                )*/
             )
         }
     }
